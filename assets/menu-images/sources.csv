@@ -1,0 +1,14 @@
+image_key,source_file,crop_box,local_file,bytes,note
+R001,menu.webp,"(70, 60, 445, 405)",assets/menu-images/menu-webp/R001-ultimate-shrimp-king-ramen.jpg,34818,crop from menu.webp; full white bowl kept inside frame
+R002,menu.webp,"(390, 155, 735, 495)",assets/menu-images/menu-webp/R002-sichuan-pepper-miso-ramen.jpg,32819,crop from menu.webp; full white bowl kept inside frame
+R003,menu.webp,"(725, 235, 1025, 500)",assets/menu-images/menu-webp/R003-grilled-bamboo-ramen.jpg,27129,crop from menu.webp; full white bowl kept inside frame
+R004,menu.webp,"(970, 35, 1225, 260)",assets/menu-images/menu-webp/R004-shio-pork-ramen.jpg,31521,crop from menu.webp; full white bowl kept inside frame
+R005,menu.webp,"(1035, 250, 1365, 500)",assets/menu-images/menu-webp/R005-garlic-tonkotsu-ramen.jpg,37170,crop from menu.webp; full white bowl kept inside frame
+R006,menu.webp,"(20, 500, 205, 665)",assets/menu-images/menu-webp/R006-cilantro-ramen.jpg,24518,crop from menu.webp; full white bowl kept inside frame
+R007,menu.webp,"(290, 500, 475, 665)",assets/menu-images/menu-webp/R007-black-garlic-ramen.jpg,24193,crop from menu.webp; full white bowl kept inside frame
+R008,menu.webp,"(550, 500, 735, 665)",assets/menu-images/menu-webp/R008-hell-ramen.jpg,24071,crop from menu.webp; full white bowl kept inside frame
+R009,menu.webp,"(800, 500, 980, 665)",assets/menu-images/menu-webp/R009-spicy-tonkotsu-ramen.jpg,21846,crop from menu.webp; full white bowl kept inside frame
+R010,menu.webp,"(20, 680, 205, 850)",assets/menu-images/menu-webp/R010-miso-ramen.jpg,22628,crop from menu.webp; full white bowl kept inside frame
+R011,menu.webp,"(290, 680, 475, 850)",assets/menu-images/menu-webp/R011-tonkotsu-ramen.jpg,22504,crop from menu.webp; full white bowl kept inside frame
+R012,menu.webp,"(550, 680, 735, 850)",assets/menu-images/menu-webp/R012-tonkotsu-shoyu-ramen.jpg,24845,crop from menu.webp; full white bowl kept inside frame
+R013,menu.webp,"(800, 680, 990, 850)",assets/menu-images/menu-webp/R013-shoyu-ramen.jpg,21906,crop from menu.webp; full white bowl kept inside frame

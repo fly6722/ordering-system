@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --paper: #000000;
+        --surface: #ffffff;
+        --ink: #28231e;
+        --muted: #70665d;
+        --line: #dfd2c2;
+        --brand: #a63024;
+        --ok: #2f7d46;
+        --work: #2d6f9f;
+        --warn: #a86513;
+        --shadow: 0 10px 24px rgba(44, 31, 20, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-weight: 700;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          "Noto Sans TC",
+          sans-serif;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(0, 0, 0, 0.96);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar-inner,
+      .layout {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        padding: 14px 18px;
+      }
+
+      .topbar-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .topbar h1 {
+        color: #ffffff;
+        grid-column: 2;
+        justify-self: center;
+        text-align: center;
+      }
+
+      .topbar-inner .actions {
+        grid-column: 3;
+        justify-self: end;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      h3 {
+        font-size: 16px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 18px;
+      }
+
+      .panel,
+      .order-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .section {
+        padding: 16px;
+      }
+
+      .section + .section {
+        border-top: 1px solid var(--line);
+      }
+
+      .actions,
+      .metric-grid,
+      .status-grid,
+      .order-controls {
+        display: grid;
+        gap: 10px;
+      }
+
+      .actions {
+        grid-template-columns: auto auto auto 1fr;
+        align-items: center;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tab-btn {
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--ink);
+      }
+
+      .tab-btn.active {
+        border-color: var(--brand);
+        background: var(--brand);
+        color: #ffffff;
+      }
+
+      .view {
+        display: none;
+      }
+
+      .view.active {
+        display: block;
+      }
+
+      .metric-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: #fffaf2;
+      }
+
+      .metric span,
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 22px;
+      }
+
+      .orders {
+        display: grid;
+        gap: 12px;
+      }
+
+      .order-card {
+        box-shadow: none;
+      }
+
+      .order-head {
+        padding: 12px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .order-body {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .order-items {
+        display: grid;
+        gap: 5px;
+      }
+
+      .order-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 1px dashed #eadfD2;
+        padding-bottom: 5px;
+      }
+
+      .order-controls {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .catalog-toolbar,
+      .billing-grid,
+      .editor-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .catalog-toolbar {
+        grid-template-columns: auto auto 1fr;
+        align-items: center;
+      }
+
+      .catalog-grid {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .catalog-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffdf8;
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr) auto;
+        gap: 12px;
+        padding: 10px;
+      }
+
+      .catalog-image {
+        width: 112px;
+        aspect-ratio: 3 / 2;
+        border-radius: 8px;
+        object-fit: contain;
+        background: #b8bec6;
+      }
+
+      .catalog-info {
+        min-width: 0;
+        display: grid;
+        gap: 5px;
+      }
+
+      .catalog-meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .catalog-actions {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+      }
+
+      .editor {
+        display: none;
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffaf2;
+        padding: 12px;
+      }
+
+      .editor.active {
+        display: block;
+      }
+
+      .editor-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .check-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        color: var(--ink);
+        font-weight: 800;
+      }
+
+      .check-row input {
+        width: auto;
+      }
+
+      .billing-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .report-switch {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .report-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      .bill-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .bill-table th,
+      .bill-table td {
+        border-bottom: 1px solid var(--line);
+        padding: 8px 6px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .bill-table th {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffdf8;
+        color: var(--ink);
+        padding: 9px 10px;
+        outline: none;
+      }
+
+      textarea {
+        min-height: 42px;
+        resize: vertical;
+      }
+
+      button,
+      .front-link {
+        min-height: 38px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--ink);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 0 12px;
+      }
+
+      .front-link {
+        display: inline-grid;
+        place-items: center;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      button.secondary {
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--ink);
+      }
+
+      button.save {
+        background: var(--brand);
+      }
+
+      .badge {
+        align-self: start;
+        border-radius: 8px;
+        padding: 6px 9px;
+        background: #f1e6d9;
+        color: var(--ink);
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .badge.new {
+        background: #fff0ea;
+        color: var(--brand);
+      }
+
+      .badge.work {
+        background: #eaf3fb;
+        color: var(--work);
+      }
+
+      .badge.done {
+        background: #e8f4ec;
+        color: var(--ok);
+      }
+
+      .badge.cancel {
+        background: #f3e9e5;
+        color: #7a332c;
+      }
+
+      .side {
+        position: sticky;
+        top: 76px;
+        align-self: start;
+      }
+
+      .list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .list-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 8px;
+      }
+
+      .notice {
+        min-height: 22px;
+        color: var(--muted);
+      }
+
+      .notice.error {
+        color: var(--brand);
+        font-weight: 800;
+      }
+
+      .pin {
+        display: none;
+        width: min(420px, calc(100% - 24px));
+        margin: 80px auto;
+      }
+
+      @media (max-width: 920px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .side {
+          position: static;
+        }
+
+        .metric-grid,
+        .order-controls,
+        .billing-grid,
+        .editor-grid,
+        .report-summary {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .catalog-card {
+          grid-template-columns: 96px minmax(0, 1fr);
+        }
+
+        .catalog-actions {
+          grid-column: 1 / -1;
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .topbar-inner,
+        .layout {
+          padding-inline: 12px;
+        }
+
+        .topbar-inner {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar h1,
+        .topbar-inner .actions {
+          grid-column: 1;
+          justify-self: stretch;
+        }
+
+        .actions,
+        .metric-grid,
+        .order-controls,
+        .catalog-toolbar,
+        .billing-grid,
+        .editor-grid,
+        .report-summary {
+          grid-template-columns: 1fr;
+        }
+
+        .catalog-card {
+          grid-template-columns: 1fr;
+        }
+
+        .catalog-image {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="pinPanel" class="panel pin">
+      <section class="section">
+        <h2>管理登入</h2>
+      </section>
+      <section class="section">
+        <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN" />
+        <button id="pinBtn" style="width: 100%; margin-top: 10px" type="button">登入</button>
+        <div id="pinStatus" class="notice"></div>
+      </section>
+    </div>
+
+    <div id="adminApp" style="display: none">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <h1 id="storeName">訂單管理</h1>
+          <div class="actions">
+            <a class="front-link" href="<?= webAppUrl || '?' ?>" target="_top">前台點餐</a>
+            <button id="refreshBtn" type="button">重新整理</button>
+            <button id="reportBtn" class="secondary" type="button">更新報表</button>
+            <div id="status" class="notice"></div>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <div class="panel">
+          <section class="section">
+            <div class="metric-grid" id="metrics"></div>
+          </section>
+          <section class="section">
+            <div class="tabs" role="tablist" aria-label="管理功能">
+              <button class="tab-btn active" type="button" data-view="ordersView">訂單</button>
+              <button class="tab-btn" type="button" data-view="catalogView">品項管理</button>
+              <button class="tab-btn" type="button" data-view="reportsView">訂單報表</button>
+              <button class="tab-btn" type="button" data-view="billingView">帳單統計</button>
+            </div>
+          </section>
+          <section class="section view active" id="ordersView">
+            <div class="section-head">
+              <h2>訂單</h2>
+            </div>
+            <div id="orders" class="orders"></div>
+          </section>
+          <section class="section view" id="catalogView">
+            <div class="section-head">
+              <h2>品項管理</h2>
+            </div>
+            <div class="catalog-toolbar">
+              <button id="newMenuBtn" class="save" type="button">新增餐點</button>
+              <button id="newAddonBtn" type="button">新增加點</button>
+              <div></div>
+            </div>
+            <div id="catalogEditor" class="editor">
+              <div class="editor-grid">
+                <label>
+                  編號
+                  <input id="itemId" />
+                </label>
+                <label id="categoryField">
+                  分類
+                  <input id="itemCategory" />
+                </label>
+                <label>
+                  名稱
+                  <input id="itemName" />
+                </label>
+                <label id="sizeField">
+                  大小
+                  <input id="itemSize" />
+                </label>
+                <label>
+                  價格
+                  <input id="itemPrice" type="number" min="0" step="1" />
+                </label>
+                <label>
+                  排序
+                  <input id="itemSort" type="number" min="0" step="1" />
+                </label>
+                <label id="optionsField">
+                  可選選項
+                  <input id="itemOptions" />
+                </label>
+                <label>
+                  圖片網址
+                  <input id="itemImageUrl" />
+                </label>
+                <label>
+                  備註
+                  <input id="itemNote" />
+                </label>
+                <label class="check-row">
+                  <input id="itemEnabled" type="checkbox" />
+                  上架
+                </label>
+              </div>
+              <div class="actions" style="margin-top: 10px">
+                <button id="saveItemBtn" class="save" type="button">儲存品項</button>
+                <button id="cancelItemBtn" class="secondary" type="button">取消</button>
+                <div></div>
+              </div>
+            </div>
+            <div id="catalogRoot" class="catalog-grid"></div>
+          </section>
+          <section class="section view" id="reportsView">
+            <div class="section-head">
+              <h2>訂單報表</h2>
+            </div>
+            <div class="report-switch" role="tablist" aria-label="報表週期">
+              <button class="tab-btn active" type="button" data-report-mode="daily">日報</button>
+              <button class="tab-btn" type="button" data-report-mode="weekly">週報</button>
+              <button class="tab-btn" type="button" data-report-mode="monthly">月報</button>
+            </div>
+            <div id="reportSummary" class="report-summary"></div>
+            <div id="reportTable" class="table-wrap" style="margin-top: 12px"></div>
+          </section>
+          <section class="section view" id="billingView">
+            <div class="section-head">
+              <h2>帳單統計</h2>
+            </div>
+            <div id="billingMetrics" class="billing-grid"></div>
+            <div style="margin-top: 16px">
+              <h3>付款方式</h3>
+              <div id="paymentBreakdown" class="list" style="margin-top: 10px"></div>
+            </div>
+            <div style="margin-top: 16px">
+              <h3>近 14 日營收</h3>
+              <div id="dailyBills" style="margin-top: 10px"></div>
+            </div>
+            <div style="margin-top: 16px">
+              <h3>未結帳單</h3>
+              <div id="openBills" style="margin-top: 10px"></div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="panel side">
+          <section class="section">
+            <h2>狀態</h2>
+            <div id="statusCounts" class="list" style="margin-top: 12px"></div>
+          </section>
+          <section class="section">
+            <h2>熱賣</h2>
+            <div id="topItems" class="list" style="margin-top: 12px"></div>
+          </section>
+          <section class="section">
+            <h2>備料</h2>
+            <div id="ingredients" class="list" style="margin-top: 12px"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script>
+      const state = {
+        pin: localStorage.getItem('orderingAdminPin') || '',
+        settings: { currency: 'NT$', orderStatuses: [], paymentMethods: [], paymentStatuses: [] },
+        catalog: { menu: [], addons: [] },
+        reports: { daily: { rows: [], summary: {} }, weekly: { rows: [], summary: {} }, monthly: { rows: [], summary: {} } },
+        reportMode: 'daily',
+        editingType: 'menu',
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+
+      document.addEventListener('DOMContentLoaded', () => {
+        $('#pinBtn').addEventListener('click', () => {
+          state.pin = $('#pinInput').value;
+          localStorage.setItem('orderingAdminPin', state.pin);
+          showAdmin();
+          loadAdmin();
+        });
+        $('#refreshBtn').addEventListener('click', loadAdmin);
+        $('#reportBtn').addEventListener('click', refreshReports);
+        $('#newMenuBtn').addEventListener('click', () => openItemEditor('menu'));
+        $('#newAddonBtn').addEventListener('click', () => openItemEditor('addon'));
+        $('#cancelItemBtn').addEventListener('click', closeItemEditor);
+        $('#saveItemBtn').addEventListener('click', saveCatalogItem);
+        document.querySelectorAll('[data-view]').forEach((button) => {
+          button.addEventListener('click', () => showView(button.dataset.view));
+        });
+        document.querySelectorAll('[data-report-mode]').forEach((button) => {
+          button.addEventListener('click', () => {
+            state.reportMode = button.dataset.reportMode;
+            renderReports(state.reports);
+          });
+        });
+
+        google.script.run
+          .withSuccessHandler((data) => {
+            $('#storeName').textContent = data.storeName + ' 管理';
+            if (data.requiresPin && !state.pin) showPin();
+            else {
+              showAdmin();
+              loadAdmin();
+            }
+          })
+          .withFailureHandler((error) => showError(error.message || String(error)))
+          .getAdminBootstrap();
+      });
+
+      function showPin() {
+        $('#pinPanel').style.display = 'block';
+        $('#adminApp').style.display = 'none';
+      }
+
+      function showAdmin() {
+        $('#pinPanel').style.display = 'none';
+        $('#adminApp').style.display = 'block';
+      }
+
+      function showView(viewId) {
+        document.querySelectorAll('.view').forEach((view) => view.classList.toggle('active', view.id === viewId));
+        document.querySelectorAll('[data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === viewId));
+      }
+
+      function loadAdmin() {
+        setStatus('載入中');
+        google.script.run
+          .withSuccessHandler((data) => renderAdmin(data, '已更新'))
+          .withFailureHandler((error) => {
+            showError(error.message || String(error));
+            if ((error.message || '').includes('PIN')) showPin();
+          })
+          .getAdminData(state.pin);
+      }
+
+      function renderAdmin(data, message) {
+        state.settings = data.settings;
+        state.catalog = data.catalog || { menu: [], addons: [] };
+        $('#storeName').textContent = data.settings.store_name + ' 管理';
+        renderMetrics(data.metrics.today);
+        renderStatusCounts(data.metrics.statusCounts);
+        renderTopItems(data.metrics.topItems);
+        renderIngredients(data.metrics.ingredientUsage);
+        renderOrders(data.orders);
+        renderCatalog(state.catalog);
+        renderReports(data.metrics.reports || {});
+        renderBilling(data.metrics.billing || {});
+        setStatus(message || '已更新');
+      }
+
+      function refreshReports() {
+        setStatus('更新中');
+        google.script.run
+          .withSuccessHandler(() => loadAdmin())
+          .withFailureHandler((error) => showError(error.message || String(error)))
+          .refreshAdminReports(state.pin);
+      }
+
+      function renderMetrics(today) {
+        const rows = [
+          ['今日營收', money(today.total)],
+          ['今日訂單', today.orders],
+          ['未付款', today.unpaidOrders],
+          ['客單價', money(today.averageOrderValue)],
+        ];
+        $('#metrics').innerHTML = rows
+          .map((row) => `<div class="metric"><span>${escapeHtml(row[0])}</span><strong>${escapeHtml(row[1])}</strong></div>`)
+          .join('');
+      }
+
+      function renderStatusCounts(counts) {
+        $('#statusCounts').innerHTML =
+          Object.entries(counts || {})
+            .map((row) => `<div class="list-row"><span>${escapeHtml(row[0])}</span><strong>${escapeHtml(row[1])}</strong></div>`)
+            .join('') || '<div class="muted">尚無資料</div>';
+      }
+
+      function renderTopItems(items) {
+        $('#topItems').innerHTML =
+          (items || [])
+            .map((item) => {
+              const name = [item.itemName, item.size, item.option].filter(Boolean).join(' ');
+              return `<div class="list-row"><span>${escapeHtml(name)}</span><strong>${item.quantity}</strong></div>`;
+            })
+            .join('') || '<div class="muted">尚無資料</div>';
+      }
+
+      function renderIngredients(items) {
+        $('#ingredients').innerHTML =
+          (items || [])
+            .map(
+              (item) =>
+                `<div class="list-row"><span>${escapeHtml(item.ingredient)}</span><strong>${item.quantity} ${escapeHtml(
+                  item.unit
+                )}</strong></div>`
+            )
+            .join('') || '<div class="muted">尚無資料</div>';
+      }
+
+      function renderOrders(orders) {
+        $('#orders').innerHTML =
+          (orders || [])
+            .map((order) => {
+              const itemLines = order.items
+                .map((item) => {
+                  const name = [item.itemName, item.size, item.option].filter(Boolean).join(' ');
+                  return `<div class="order-line"><span>${escapeHtml(name)} x ${item.quantity}</span><strong>${money(
+                    item.lineTotal
+                  )}</strong></div>`;
+                })
+                .join('');
+              return `
+                <article class="order-card" data-order="${escapeHtml(order.orderId)}">
+                  <div class="order-head">
+                    <div>
+                      <strong>${escapeHtml(order.orderId)}</strong>
+                      <div class="muted">${escapeHtml(order.createdAt)} / ${escapeHtml(order.serviceType)} ${
+                order.tableNo ? '/ 桌 ' + escapeHtml(order.tableNo) : ''
+              } / 取餐碼 ${escapeHtml(order.pickupCode)}</div>
+                    </div>
+                    <span class="${badgeClass(order.status)}">${escapeHtml(order.status)}</span>
+                  </div>
+                  <div class="order-body">
+                    <div class="order-items">${itemLines}</div>
+                    <div><strong>${money(order.total)}</strong> <span class="muted">${escapeHtml(order.paymentMethod)} / ${escapeHtml(
+                order.paymentStatus
+              )}</span></div>
+                    ${order.note ? `<div class="muted">備註：${escapeHtml(order.note)}</div>` : ''}
+                    <div class="order-controls">
+                      <select data-field="status">${options(state.settings.orderStatuses, order.status)}</select>
+                      <select data-field="paymentStatus">${options(state.settings.paymentStatuses, order.paymentStatus)}</select>
+                      <select data-field="paymentMethod">${options(state.settings.paymentMethods, order.paymentMethod)}</select>
+                      <button class="save" type="button" data-save="${escapeHtml(order.orderId)}">儲存</button>
+                    </div>
+                    <textarea data-field="adminNote" placeholder="櫃台備註">${escapeHtml(order.adminNote)}</textarea>
+                  </div>
+                </article>
+              `;
+            })
+            .join('') || '<div class="muted">尚無訂單</div>';
+
+        document.querySelectorAll('[data-save]').forEach((button) => {
+          button.addEventListener('click', () => saveOrder(button.dataset.save));
+        });
+      }
+
+      function renderCatalog(catalog) {
+        const menu = (catalog.menu || []).map((item) => ({ ...item, typeLabel: '餐點' }));
+        const addons = (catalog.addons || []).map((item) => ({ ...item, typeLabel: '加點' }));
+        const rows = menu.concat(addons);
+        $('#catalogRoot').innerHTML =
+          rows
+            .map((item) => {
+              const meta = item.type === 'menu'
+                ? [item.typeLabel, item.category, item.size, `排序 ${item.sort}`].filter(Boolean).join(' / ')
+                : [item.typeLabel, `排序 ${item.sort}`].join(' / ');
+              return `
+                <article class="catalog-card">
+                  ${
+                    item.imageUrl
+                      ? `<img class="catalog-image" src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}" loading="lazy" />`
+                      : '<div class="catalog-image"></div>'
+                  }
+                  <div class="catalog-info">
+                    <div><strong>${escapeHtml(item.name)}</strong> <span class="${item.enabled ? 'badge done' : 'badge cancel'}">${
+                item.enabled ? '上架中' : '已下架'
+              }</span></div>
+                    <div class="catalog-meta">${escapeHtml(item.id)} / ${escapeHtml(meta)}</div>
+                    <div><strong>${money(item.price)}</strong></div>
+                    ${item.note ? `<div class="catalog-meta">${escapeHtml(item.note)}</div>` : ''}
+                  </div>
+                  <div class="catalog-actions">
+                    <button class="secondary" type="button" data-edit-type="${escapeHtml(item.type)}" data-edit-id="${escapeHtml(item.id)}">編輯</button>
+                    <button type="button" data-toggle-type="${escapeHtml(item.type)}" data-toggle-id="${escapeHtml(item.id)}" data-enabled="${
+                item.enabled ? 'false' : 'true'
+              }">${item.enabled ? '下架' : '上架'}</button>
+                  </div>
+                </article>
+              `;
+            })
+            .join('') || '<div class="muted">尚無品項</div>';
+
+        document.querySelectorAll('[data-edit-id]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const item = findCatalogItem(button.dataset.editType, button.dataset.editId);
+            if (item) openItemEditor(button.dataset.editType, item);
+          });
+        });
+        document.querySelectorAll('[data-toggle-id]').forEach((button) => {
+          button.addEventListener('click', () => toggleCatalogItem(button.dataset.toggleType, button.dataset.toggleId, button.dataset.enabled === 'true'));
+        });
+      }
+
+      function renderReports(reports) {
+        state.reports = {
+          daily: reports.daily || { rows: [], summary: {} },
+          weekly: reports.weekly || { rows: [], summary: {} },
+          monthly: reports.monthly || { rows: [], summary: {} },
+        };
+
+        document.querySelectorAll('[data-report-mode]').forEach((button) => {
+          button.classList.toggle('active', button.dataset.reportMode === state.reportMode);
+        });
+
+        const report = state.reports[state.reportMode] || { rows: [], summary: {} };
+        const summary = report.summary || {};
+        const title = reportModeLabel(state.reportMode);
+        const summaryRows = [
+          [`${title}訂單`, summary.orders || 0],
+          [`${title}營收`, money(summary.total)],
+          ['已收', money(summary.paidTotal)],
+          ['未收', money(summary.unpaidTotal)],
+          ['取消訂單', summary.canceledOrders || 0],
+          ['品項數', summary.itemQuantity || 0],
+          ['平均客單', money(summary.averageOrderValue)],
+          ['已付款單', summary.paidOrders || 0],
+        ];
+        $('#reportSummary').innerHTML = summaryRows
+          .map((row) => `<div class="metric"><span>${escapeHtml(row[0])}</span><strong>${escapeHtml(row[1])}</strong></div>`)
+          .join('');
+
+        $('#reportTable').innerHTML = renderTable(
+          ['期間', '訂單', '已付款', '未付款', '取消', '餐點', '加點', '營收', '已收', '未收', '現金', 'LINE Pay', '其他', '客單價', '品項數'],
+          (report.rows || []).map((row) => [
+            row.period,
+            row.orders,
+            row.paidOrders,
+            row.unpaidOrders,
+            row.canceledOrders,
+            money(row.subtotal),
+            money(row.addonTotal),
+            money(row.total),
+            money(row.paidTotal),
+            money(row.unpaidTotal),
+            money(row.cashTotal),
+            money(row.linePayTotal),
+            money(row.otherTotal),
+            money(row.averageOrderValue),
+            row.itemQuantity,
+          ])
+        );
+      }
+
+      function reportModeLabel(mode) {
+        if (mode === 'weekly') return '週報';
+        if (mode === 'monthly') return '月報';
+        return '日報';
+      }
+
+      function renderBilling(billing) {
+        const today = billing.today || {};
+        const overall = billing.overall || {};
+        const rows = [
+          ['今日已收', money(today.paidTotal)],
+          ['今日未收', money(today.unpaidTotal)],
+          ['今日取消', money(today.canceledTotal)],
+          ['累計營收', money(overall.total)],
+          ['累計已收', money(overall.paidTotal)],
+          ['累計未收', money(overall.unpaidTotal)],
+        ];
+        $('#billingMetrics').innerHTML = rows
+          .map((row) => `<div class="metric"><span>${escapeHtml(row[0])}</span><strong>${escapeHtml(row[1])}</strong></div>`)
+          .join('');
+        $('#paymentBreakdown').innerHTML =
+          (billing.paymentBreakdown || [])
+            .map((row) => `<div class="list-row"><span>${escapeHtml(row.method)}</span><strong>${money(row.total)}</strong></div>`)
+            .join('') || '<div class="muted">尚無資料</div>';
+        $('#dailyBills').innerHTML = renderTable(
+          ['日期', '訂單', '營收', '現金', 'LINE Pay', '其他'],
+          (billing.recentDaily || []).map((row) => [
+            row.date,
+            row.orders,
+            money(row.total),
+            money(row.cashTotal),
+            money(row.linePayTotal),
+            money(row.otherTotal),
+          ])
+        );
+        $('#openBills').innerHTML = renderTable(
+          ['訂單', '時間', '顧客', '付款', '金額'],
+          (billing.openBills || []).map((row) => [
+            row.orderId,
+            row.createdAt,
+            row.customerName || '-',
+            `${row.paymentMethod} / ${row.paymentStatus}`,
+            money(row.total),
+          ])
+        );
+      }
+
+      function renderTable(headers, rows) {
+        if (!rows.length) return '<div class="muted">尚無資料</div>';
+        return `
+          <table class="bill-table">
+            <thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>
+            <tbody>${rows
+              .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`)
+              .join('')}</tbody>
+          </table>
+        `;
+      }
+
+      function saveOrder(orderId) {
+        const card = document.querySelector(`[data-order="${cssEscape(orderId)}"]`);
+        const patch = {
+          status: card.querySelector('[data-field="status"]').value,
+          paymentStatus: card.querySelector('[data-field="paymentStatus"]').value,
+          paymentMethod: card.querySelector('[data-field="paymentMethod"]').value,
+          adminNote: card.querySelector('[data-field="adminNote"]').value,
+        };
+        setStatus('儲存中');
+        google.script.run
+          .withSuccessHandler(() => loadAdmin())
+          .withFailureHandler((error) => showError(error.message || String(error)))
+          .updateOrder(orderId, patch, state.pin);
+      }
+
+      function openItemEditor(type, item = {}) {
+        state.editingType = type;
+        $('#catalogEditor').classList.add('active');
+        $('#itemId').value = item.id || '';
+        $('#itemId').disabled = Boolean(item.id);
+        $('#itemCategory').value = item.category || '其他';
+        $('#itemName').value = item.name || '';
+        $('#itemSize').value = item.size || '';
+        $('#itemPrice').value = item.price || 0;
+        $('#itemSort').value = item.sort || nextSort(type);
+        $('#itemOptions').value = item.options || '';
+        $('#itemImageUrl').value = item.imageUrlInput || '';
+        $('#itemNote').value = item.note || '';
+        $('#itemEnabled').checked = item.enabled !== false;
+        const isMenu = type === 'menu';
+        $('#categoryField').style.display = isMenu ? 'grid' : 'none';
+        $('#sizeField').style.display = isMenu ? 'grid' : 'none';
+        $('#optionsField').style.display = isMenu ? 'grid' : 'none';
+        $('#itemName').focus();
+      }
+
+      function closeItemEditor() {
+        $('#catalogEditor').classList.remove('active');
+      }
+
+      function saveCatalogItem() {
+        const payload = {
+          type: state.editingType,
+          id: $('#itemId').value,
+          category: $('#itemCategory').value,
+          name: $('#itemName').value,
+          size: $('#itemSize').value,
+          price: $('#itemPrice').value,
+          sort: $('#itemSort').value,
+          options: $('#itemOptions').value,
+          imageUrl: $('#itemImageUrl').value,
+          note: $('#itemNote').value,
+          enabled: $('#itemEnabled').checked,
+        };
+        setStatus('儲存品項中');
+        google.script.run
+          .withSuccessHandler((data) => {
+            closeItemEditor();
+            renderAdmin(data, '品項已儲存');
+          })
+          .withFailureHandler((error) => showError(error.message || String(error)))
+          .saveCatalogItem(payload, state.pin);
+      }
+
+      function toggleCatalogItem(type, id, enabled) {
+        setStatus('更新上架狀態中');
+        google.script.run
+          .withSuccessHandler((data) => renderAdmin(data, '上架狀態已更新'))
+          .withFailureHandler((error) => showError(error.message || String(error)))
+          .toggleCatalogItem(type, id, enabled, state.pin);
+      }
+
+      function findCatalogItem(type, id) {
+        const source = type === 'addon' ? state.catalog.addons : state.catalog.menu;
+        return (source || []).find((item) => item.id === id);
+      }
+
+      function nextSort(type) {
+        const source = type === 'addon' ? state.catalog.addons : state.catalog.menu;
+        return ((source || []).reduce((max, item) => Math.max(max, Number(item.sort || 0)), 0) || 0) + 10;
+      }
+
+      function options(values, selected) {
+        return values
+          .map((value) => `<option value="${escapeHtml(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(value)}</option>`)
+          .join('');
+      }
+
+      function badgeClass(status) {
+        if (status === '新訂單') return 'badge new';
+        if (status === '製作中') return 'badge work';
+        if (status === '完成' || status === '已取餐') return 'badge done';
+        if (status === '取消') return 'badge cancel';
+        return 'badge';
+      }
+
+      function money(value) {
+        return `${state.settings.currency || 'NT$'}${Number(value || 0).toLocaleString('zh-TW')}`;
+      }
+
+      function setStatus(message) {
+        $('#status').textContent = message;
+        $('#status').className = 'notice';
+      }
+
+      function showError(message) {
+        const target = $('#adminApp').style.display === 'none' ? $('#pinStatus') : $('#status');
+        target.textContent = message;
+        target.className = 'notice error';
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function cssEscape(value) {
+        if (window.CSS && CSS.escape) return CSS.escape(value);
+        return String(value).replace(/"/g, '\\"');
+      }
+    </script>
+  </body>
+</html>

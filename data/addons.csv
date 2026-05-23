@@ -1,0 +1,19 @@
+編號,名稱,價格,啟用,排序,圖片網址,備註
+T001,加料 - 加麵,30,TRUE,10,,Extra Noodles
+T002,加料 - 溏心蛋(x1),30,TRUE,20,,Soft Boiled Egg
+T003,加料 - 玉米,40,TRUE,30,,Corn
+T004,加料 - 海苔,40,TRUE,40,,Seaweed
+T005,加料 - 青蔥,70,TRUE,50,,Scallions
+T006,加料 - 炙燒肉(x5),120,TRUE,60,,Seared Pork
+S001,單點 - 黃金海帶絲,60,TRUE,110,,Seasoned Kelp Strips
+S002,單點 - 黃金泡菜,70,TRUE,120,,Golden Kimchi
+S003,單點 - 霜淇淋,80,TRUE,130,,Soft Serve Ice Cream
+F001,炸物 - 洋蔥圈,60,TRUE,210,,Onion Rings
+F002,炸物 - 起士條,60,TRUE,220,,Cheese Sticks
+F003,炸物 - 黃金脆薯,60,TRUE,230,,Crispy Fries
+F004,炸物 - 雞蛋豆腐,60,TRUE,240,,Fried Egg Tofu
+F005,炸物 - 南瓜可樂餅(x2),80,TRUE,250,,Pumpkin Croquette
+F006,炸物 - 唐揚炸雞,90,TRUE,260,,Japanese Fried Chicken
+F007,炸物 - 炸牡蠣(x3),100,TRUE,270,,Fried Oysters
+D001,飲品 - 可爾必思,40,TRUE,310,,Calpis
+D002,飲品 - 麒麟一番榨,70,TRUE,320,,Kirin Ichiban Beer

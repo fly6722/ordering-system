@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --paper: #000000;
+        --surface: #ffffff;
+        --ink: #28231e;
+        --muted: #70665d;
+        --line: #dfd2c2;
+        --brand: #a63024;
+        --ok: #2f7d46;
+        --shadow: 0 10px 24px rgba(44, 31, 20, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--paper);
+        color: var(--ink);
+        font-weight: 700;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          "Noto Sans TC",
+          sans-serif;
+        display: grid;
+        place-items: start center;
+        padding: 24px 12px;
+      }
+
+      .panel {
+        width: min(560px, 100%);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .section {
+        padding: 16px;
+      }
+
+      .section + .section {
+        border-top: 1px solid var(--line);
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      .search {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+
+      input,
+      button {
+        min-height: 42px;
+        border-radius: 8px;
+        font: inherit;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: #fffdf8;
+        padding: 10px 11px;
+      }
+
+      button {
+        border: 0;
+        background: var(--brand);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 0 14px;
+        cursor: pointer;
+      }
+
+      .status {
+        display: inline-grid;
+        min-height: 34px;
+        place-items: center;
+        border-radius: 8px;
+        padding: 6px 10px;
+        background: #fff0ea;
+        color: var(--brand);
+        font-weight: 900;
+      }
+
+      .status.done {
+        background: #e8f4ec;
+        color: var(--ok);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .row,
+      .line {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .line {
+        border-bottom: 1px dashed var(--line);
+        padding: 7px 0;
+      }
+
+      .total {
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      #result {
+        display: grid;
+        gap: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="panel">
+      <section class="section">
+        <h1>訂單查詢</h1>
+      </section>
+      <section class="section">
+        <div class="search">
+          <input id="orderInput" placeholder="訂單編號" />
+          <button id="searchBtn" type="button">查詢</button>
+        </div>
+      </section>
+      <section class="section">
+        <div id="result" class="muted">請輸入訂單編號</div>
+      </section>
+    </main>
+
+    <script>
+      const state = { currency: 'NT$' };
+      const $ = (selector) => document.querySelector(selector);
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(location.search);
+        const order = params.get('order') || '';
+        $('#orderInput').value = order;
+        $('#searchBtn').addEventListener('click', search);
+        if (order) search();
+      });
+
+      function search() {
+        const orderId = $('#orderInput').value.trim();
+        if (!orderId) return renderMessage('請輸入訂單編號');
+        renderMessage('查詢中');
+        google.script.run
+          .withSuccessHandler(renderOrder)
+          .withFailureHandler((error) => renderMessage(error.message || String(error), true))
+          .getOrderStatus(orderId);
+      }
+
+      function renderOrder(data) {
+        if (!data.found) {
+          renderMessage('查無訂單', true);
+          return;
+        }
+
+        const order = data.order;
+        const done = order.status === '完成' || order.status === '已取餐';
+        $('#result').className = '';
+        $('#result').innerHTML = `
+          <div class="row">
+            <div>
+              <h2>${escapeHtml(order.orderId)}</h2>
+              <div class="muted">${escapeHtml(order.createdAt)} / 取餐碼 ${escapeHtml(order.pickupCode)}</div>
+            </div>
+            <span class="status ${done ? 'done' : ''}">${escapeHtml(order.status)}</span>
+          </div>
+          <div class="muted">${escapeHtml(order.serviceType)} ${order.tableNo ? '/ 桌號 ' + escapeHtml(order.tableNo) : ''}</div>
+          <div>${order.items
+            .map((item) => {
+              const name = [item.itemName, item.size, item.option].filter(Boolean).join(' ');
+              return `<div class="line"><span>${escapeHtml(name)} x ${item.quantity}</span><strong>${money(item.lineTotal)}</strong></div>`;
+            })
+            .join('')}</div>
+          <div class="row total"><span>總計</span><span>${money(order.total)}</span></div>
+          <div class="muted">付款：${escapeHtml(order.paymentMethod)} / ${escapeHtml(order.paymentStatus)}</div>
+        `;
+      }
+
+      function renderMessage(message, error = false) {
+        $('#result').className = error ? 'status' : 'muted';
+        $('#result').textContent = message;
+      }
+
+      function money(value) {
+        return `${state.currency}${Number(value || 0).toLocaleString('zh-TW')}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --paper: #000000;
+        --surface: #ffffff;
+        --ink: #26201b;
+        --muted: #766b61;
+        --line: #e3d5c5;
+        --brand: #b73428;
+        --brand-dark: #8f241b;
+        --leaf: #2f7d46;
+        --blue: #2d6f9f;
+        --shadow: 0 10px 24px rgba(44, 31, 20, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-weight: 700;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          "Noto Sans TC",
+          sans-serif;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: rgba(0, 0, 0, 0.96);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar-inner {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 14px clamp(16px, 2.5vw, 36px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.1;
+        letter-spacing: 0;
+      }
+
+      .topbar h1 {
+        color: #ffffff;
+        grid-column: 2;
+        justify-self: center;
+        text-align: center;
+      }
+
+      .pill-total {
+        min-width: 104px;
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        text-align: right;
+        font-weight: 800;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        grid-column: 3;
+        justify-self: end;
+      }
+
+      .admin-link {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink);
+        display: inline-grid;
+        place-items: center;
+        padding: 0 12px;
+        text-decoration: none;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .layout {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 18px clamp(16px, 2.5vw, 36px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .section {
+        padding: 16px;
+      }
+
+      .section + .section {
+        border-top: 1px solid var(--line);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      h2,
+      h3 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      h3 {
+        font-size: 16px;
+      }
+
+      .segmented {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .segmented input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .segment {
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background: #fffdf8;
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      .segmented input:checked + .segment {
+        border-color: var(--brand);
+        background: #fff0ea;
+        color: var(--brand-dark);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .form-grid label {
+        font-size: 16px;
+        font-weight: 900;
+      }
+
+      .form-grid input,
+      .form-grid select {
+        min-height: 48px;
+        font-size: 17px;
+        font-weight: 800;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffdf8;
+        color: var(--ink);
+        padding: 10px 11px;
+        outline: none;
+      }
+
+      textarea {
+        min-height: 74px;
+        resize: vertical;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(45, 111, 159, 0.14);
+      }
+
+      .category {
+        margin-top: 16px;
+      }
+
+      .category:first-child {
+        margin-top: 0;
+      }
+
+      .item-grid,
+      .addon-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .addon-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .item-card,
+      .addon-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffdf8;
+        overflow: hidden;
+      }
+
+      .item-image,
+      .addon-image {
+        width: 100%;
+        aspect-ratio: 3 / 2;
+        display: block;
+        object-fit: contain;
+        background: #b8bec6;
+      }
+
+      .item-image {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .item-title {
+        padding: 11px 12px 8px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .variant {
+        min-height: 54px;
+        padding: 9px 12px;
+        border-top: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: auto minmax(92px, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .variant select {
+        padding-block: 8px;
+      }
+
+      .price {
+        font-weight: 800;
+        color: var(--brand-dark);
+        white-space: nowrap;
+      }
+
+      .size {
+        min-width: 28px;
+        min-height: 28px;
+        padding: 4px 7px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        display: inline-grid;
+        place-items: center;
+        font-weight: 700;
+        background: #ffffff;
+      }
+
+      .add-btn,
+      .submit-btn,
+      .qty-btn {
+        border: 0;
+        border-radius: 8px;
+        font-weight: 800;
+      }
+
+      .add-btn {
+        min-width: 38px;
+        min-height: 36px;
+        background: var(--leaf);
+        color: #ffffff;
+      }
+
+      .addon-card {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .addon-body {
+        padding: 10px 12px 12px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .cart {
+        position: sticky;
+        top: 78px;
+        align-self: start;
+      }
+
+      .cart-lines {
+        display: grid;
+        gap: 10px;
+      }
+
+      .cart-count {
+        min-height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 5px 8px;
+        background: #fffdf8;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .clear-btn {
+        min-height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--ink);
+        font-weight: 800;
+        padding: 0 9px;
+      }
+
+      .cart-empty {
+        color: var(--muted);
+        padding: 16px;
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .cart-line {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        background: #fffdf8;
+      }
+
+      .line-name {
+        font-weight: 800;
+      }
+
+      .line-detail {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 3px;
+      }
+
+      .qty {
+        display: grid;
+        grid-template-columns: 32px 34px 32px;
+        align-items: center;
+        text-align: center;
+        gap: 4px;
+      }
+
+      .qty-btn {
+        min-height: 32px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--ink);
+      }
+
+      .totals {
+        display: grid;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        margin-top: 12px;
+      }
+
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .total-row.final {
+        font-size: 20px;
+        font-weight: 900;
+      }
+
+      .submit-btn {
+        width: 100%;
+        min-height: 46px;
+        margin-top: 12px;
+        background: var(--brand);
+        color: #ffffff;
+      }
+
+      .submit-btn:disabled,
+      .add-btn:disabled {
+        cursor: progress;
+        opacity: 0.62;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .status.ok {
+        color: var(--leaf);
+        font-weight: 800;
+      }
+
+      .status.error {
+        color: var(--brand-dark);
+        font-weight: 800;
+      }
+
+      .loading {
+        min-height: 160px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+      }
+
+      @media (max-width: 880px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .cart {
+          position: static;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .topbar-inner,
+        .layout {
+          padding-inline: 12px;
+        }
+
+        h1 {
+          font-size: 21px;
+        }
+
+        .topbar-inner {
+          grid-template-columns: 1fr;
+          align-items: flex-start;
+        }
+
+        .topbar h1,
+        .top-actions {
+          grid-column: 1;
+          justify-self: stretch;
+        }
+
+        .top-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .form-grid,
+        .item-grid,
+        .addon-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .variant {
+          grid-template-columns: auto minmax(0, 1fr) auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <h1 id="storeName">線上點餐系統</h1>
+          <div class="top-actions">
+            <a
+              class="admin-link"
+              href="https://script.google.com/macros/s/AKfycbx9pU_ESK4sqTvOD0Zc0rP6RYbqoJXMKLmJ7KnfMnpECodOI2l0qhiRs0SpYSlJ1xWp/exec?page=admin"
+              target="_top"
+              >管理員登入</a
+            >
+            <div class="pill-total" id="topTotal">NT$0</div>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <div class="panel">
+          <section class="section">
+            <div class="segmented" role="radiogroup" aria-label="用餐方式">
+              <label>
+                <input type="radio" name="serviceType" value="內用" checked />
+                <span class="segment">內用</span>
+              </label>
+              <label>
+                <input type="radio" name="serviceType" value="外帶" />
+                <span class="segment">外帶</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="form-grid">
+              <label>
+                姓名
+                <input id="customerName" autocomplete="name" />
+              </label>
+              <label>
+                電話
+                <input id="phone" inputmode="tel" autocomplete="tel" />
+              </label>
+              <label>
+                桌號
+                <input id="tableNo" />
+              </label>
+              <label>
+                付款方式
+                <select id="paymentMethod"></select>
+              </label>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h2>餐點</h2>
+            </div>
+            <div id="menuRoot" class="loading">載入中</div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h2>加點</h2>
+            </div>
+            <div id="addonRoot" class="addon-grid"></div>
+          </section>
+        </div>
+
+        <aside class="panel cart">
+          <section class="section">
+            <div class="section-head">
+              <h2>購物車</h2>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span id="cartCount" class="cart-count">0 項</span>
+                <button id="clearCartBtn" class="clear-btn" type="button">清空</button>
+              </div>
+            </div>
+            <div id="cartRoot" class="cart-lines"></div>
+            <div class="totals">
+              <div class="total-row">
+                <span>餐點</span>
+                <strong id="subtotal">NT$0</strong>
+              </div>
+              <div class="total-row">
+                <span>加點</span>
+                <strong id="addonTotal">NT$0</strong>
+              </div>
+              <div class="total-row final">
+                <span>總計</span>
+                <span id="grandTotal">NT$0</span>
+              </div>
+            </div>
+            <label style="margin-top: 12px">
+              備註
+              <textarea id="note"></textarea>
+            </label>
+            <button class="submit-btn" id="submitBtn" type="button">送出訂單</button>
+            <div class="status" id="status"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script>
+      const GAS_API_URL =
+        'https://script.google.com/macros/s/AKfycbx9pU_ESK4sqTvOD0Zc0rP6RYbqoJXMKLmJ7KnfMnpECodOI2l0qhiRs0SpYSlJ1xWp/exec';
+
+      const state = {
+        currency: 'NT$',
+        menuById: {},
+        addonById: {},
+        cart: new Map(),
+        submitting: false,
+        cartStorageKey: 'orderingCartV2',
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+
+      document.addEventListener('DOMContentLoaded', () => {
+        $('#submitBtn').addEventListener('click', submitOrder);
+        $('#clearCartBtn').addEventListener('click', clearCart);
+        loadData();
+      });
+
+      function loadData() {
+        setStatus('');
+        apiGet('getAppData')
+          .then((data) => {
+            state.currency = data.settings.currency || 'NT$';
+            $('#storeName').textContent = data.settings.store_name || '線上點餐系統';
+            state.menuById = Object.fromEntries(data.menu.map((item) => [item.id, item]));
+            state.addonById = Object.fromEntries(data.addons.map((item) => [item.id, item]));
+            renderPaymentMethods(data.settings.paymentMethods || []);
+            renderMenu(data.menu);
+            renderAddons(data.addons);
+            restoreCart();
+            renderCart();
+          })
+          .catch((error) => {
+            $('#menuRoot').className = 'cart-empty';
+            $('#menuRoot').textContent = error.message || String(error);
+          });
+      }
+
+      function renderMenu(menu) {
+        const root = $('#menuRoot');
+        root.className = '';
+        root.innerHTML = '';
+
+        const categories = groupBy(menu, (item) => item.category);
+        Object.entries(categories).forEach(([category, rows]) => {
+          const section = document.createElement('div');
+          section.className = 'category';
+          section.innerHTML = `<div class="section-head"><h3>${escapeHtml(category)}</h3></div>`;
+
+          const grid = document.createElement('div');
+          grid.className = 'item-grid';
+
+          const items = groupBy(rows, (item) => item.name);
+          Object.entries(items).forEach(([name, variants]) => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            const imageUrl = (variants.find((variant) => variant.imageUrl) || {}).imageUrl || '';
+            card.innerHTML = `
+              ${imageUrl ? `<img class="item-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(name)}" loading="lazy" decoding="async" />` : ''}
+              <div class="item-title"><strong>${escapeHtml(name)}</strong></div>
+            `;
+
+            variants.forEach((variant) => {
+              const row = document.createElement('div');
+              row.className = 'variant';
+
+              const optionSelect = variant.options.length
+                ? `<select data-option-for="${escapeHtml(variant.id)}">${variant.options
+                    .map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`)
+                    .join('')}</select>`
+                : `<span class="price">${money(variant.price)}</span>`;
+
+              row.innerHTML = `
+                <span class="size">${escapeHtml(variant.size || '-')}</span>
+                ${optionSelect}
+                <button class="add-btn" type="button" data-add-menu="${escapeHtml(variant.id)}">+</button>
+              `;
+
+              if (variant.options.length) {
+                const price = document.createElement('div');
+                price.className = 'price';
+                price.textContent = money(variant.price);
+                row.insertBefore(price, row.lastElementChild);
+                row.style.gridTemplateColumns = 'auto minmax(82px, 1fr) auto auto';
+              }
+
+              card.appendChild(row);
+            });
+
+            grid.appendChild(card);
+          });
+
+          section.appendChild(grid);
+          root.appendChild(section);
+        });
+
+        root.querySelectorAll('[data-add-menu]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const id = button.dataset.addMenu;
+            const select = root.querySelector(`[data-option-for="${cssEscape(id)}"]`);
+            addCartLine('main', id, select ? select.value : '');
+          });
+        });
+      }
+
+      function renderAddons(addons) {
+        const root = $('#addonRoot');
+        root.innerHTML = '';
+        addons.forEach((addon) => {
+          const card = document.createElement('div');
+          card.className = 'addon-card';
+          card.innerHTML = `
+            ${addon.imageUrl ? `<img class="addon-image" src="${escapeHtml(addon.imageUrl)}" alt="${escapeHtml(addon.name)}" loading="lazy" decoding="async" />` : ''}
+            <div class="addon-body">
+              <strong>${escapeHtml(addon.name)}</strong>
+              <span class="price">${money(addon.price)}</span>
+              <button class="add-btn" type="button" data-add-addon="${escapeHtml(addon.id)}">+</button>
+            </div>
+          `;
+          root.appendChild(card);
+        });
+
+        root.querySelectorAll('[data-add-addon]').forEach((button) => {
+          button.addEventListener('click', () => addCartLine('addon', button.dataset.addAddon, ''));
+        });
+      }
+
+      function addCartLine(type, id, option) {
+        const key = [type, id, option].join('|');
+        const existing = state.cart.get(key);
+        const source = type === 'main' ? state.menuById[id] : state.addonById[id];
+        if (!source) return;
+
+        state.cart.set(key, {
+          key,
+          type,
+          id,
+          option,
+          quantity: existing ? existing.quantity + 1 : 1,
+        });
+        persistCart();
+        renderCart();
+      }
+
+      function changeQuantity(key, delta) {
+        const line = state.cart.get(key);
+        if (!line) return;
+        const next = line.quantity + delta;
+        if (next <= 0) state.cart.delete(key);
+        else state.cart.set(key, { ...line, quantity: Math.min(next, 99) });
+        persistCart();
+        renderCart();
+      }
+
+      function clearCart() {
+        state.cart.clear();
+        persistCart();
+        renderCart();
+      }
+
+      function renderCart() {
+        const root = $('#cartRoot');
+        root.innerHTML = '';
+
+        if (!state.cart.size) {
+          root.innerHTML = '<div class="cart-empty">尚未選餐</div>';
+        } else {
+          [...state.cart.values()].forEach((line) => {
+            const item = line.type === 'main' ? state.menuById[line.id] : state.addonById[line.id];
+            if (!item) return;
+
+            const title =
+              line.type === 'main'
+                ? `${item.name}${item.size ? ' ' + item.size : ''}`
+                : item.name;
+            const detail = [line.option, money(item.price) + ' x ' + line.quantity].filter(Boolean).join(' / ');
+
+            const element = document.createElement('div');
+            element.className = 'cart-line';
+            element.innerHTML = `
+              <div>
+                <div class="line-name">${escapeHtml(title)}</div>
+                <div class="line-detail">${escapeHtml(detail)}</div>
+              </div>
+              <div class="qty">
+                <button class="qty-btn" type="button" data-delta="-1" data-key="${escapeHtml(line.key)}">-</button>
+                <strong>${line.quantity}</strong>
+                <button class="qty-btn" type="button" data-delta="1" data-key="${escapeHtml(line.key)}">+</button>
+              </div>
+            `;
+            root.appendChild(element);
+          });
+        }
+
+        root.querySelectorAll('[data-key]').forEach((button) => {
+          button.addEventListener('click', () => changeQuantity(button.dataset.key, Number(button.dataset.delta)));
+        });
+
+        const totals = calculateTotals();
+        $('#subtotal').textContent = money(totals.subtotal);
+        $('#addonTotal').textContent = money(totals.addonTotal);
+        $('#grandTotal').textContent = money(totals.total);
+        $('#topTotal').textContent = money(totals.total);
+        $('#cartCount').textContent = `${totals.count} 項`;
+      }
+
+      function calculateTotals() {
+        return [...state.cart.values()].reduce(
+          (totals, line) => {
+            const item = line.type === 'main' ? state.menuById[line.id] : state.addonById[line.id];
+            if (!item) return totals;
+            const value = Number(item.price || 0) * line.quantity;
+            if (line.type === 'main') totals.subtotal += value;
+            else totals.addonTotal += value;
+            totals.total += value;
+            totals.count += line.quantity;
+            return totals;
+          },
+          { subtotal: 0, addonTotal: 0, total: 0, count: 0 }
+        );
+      }
+
+      function persistCart() {
+        try {
+          localStorage.setItem(state.cartStorageKey, JSON.stringify([...state.cart.values()]));
+        } catch (error) {
+          // Ignore storage failures; ordering still works for the current page view.
+        }
+      }
+
+      function restoreCart() {
+        try {
+          const rows = JSON.parse(localStorage.getItem(state.cartStorageKey) || '[]');
+          state.cart.clear();
+          rows.forEach((line) => {
+            const source = line.type === 'main' ? state.menuById[line.id] : state.addonById[line.id];
+            const quantity = Number(line.quantity || 0);
+            if (!source || !Number.isInteger(quantity) || quantity < 1) return;
+            const key = [line.type, line.id, line.option || ''].join('|');
+            state.cart.set(key, {
+              key,
+              type: line.type,
+              id: line.id,
+              option: line.option || '',
+              quantity: Math.min(quantity, 99),
+            });
+          });
+          persistCart();
+        } catch (error) {
+          state.cart.clear();
+          persistCart();
+        }
+      }
+
+      function submitOrder() {
+        if (state.submitting) return;
+
+        const payload = {
+          serviceType: document.querySelector('input[name="serviceType"]:checked').value,
+          customerName: $('#customerName').value,
+          phone: $('#phone').value,
+          tableNo: $('#tableNo').value,
+          paymentMethod: $('#paymentMethod').value,
+          note: $('#note').value,
+          items: [],
+          addons: [],
+        };
+
+        [...state.cart.values()].forEach((line) => {
+          const row = {
+            id: line.id,
+            quantity: line.quantity,
+            option: line.option,
+          };
+          if (line.type === 'main') payload.items.push(row);
+          else payload.addons.push(row);
+        });
+
+        if (!payload.items.length && !payload.addons.length) {
+          setStatus('請至少選擇一項餐點', 'error');
+          return;
+        }
+
+        state.submitting = true;
+        $('#submitBtn').disabled = true;
+        setStatus('送出中');
+
+        apiPost('submitOrder', payload)
+          .then((result) => {
+            state.cart.clear();
+            persistCart();
+            $('#note').value = '';
+            renderCart();
+            const link = result.statusUrl
+              ? `<a href="${escapeHtml(result.statusUrl)}" target="_top">查詢進度</a>`
+              : '';
+            setStatusHtml(
+              `已送出 ${escapeHtml(result.orderId)}，取餐碼 ${escapeHtml(result.pickupCode)}，總計 ${escapeHtml(
+                money(result.total)
+              )} ${link}`,
+              'ok'
+            );
+            state.submitting = false;
+            $('#submitBtn').disabled = false;
+          })
+          .catch((error) => {
+            setStatus(error.message || String(error), 'error');
+            state.submitting = false;
+            $('#submitBtn').disabled = false;
+          });
+      }
+
+      function renderPaymentMethods(methods) {
+        const select = $('#paymentMethod');
+        select.innerHTML = '';
+        (methods.length ? methods : ['現金']).forEach((method) => {
+          const option = document.createElement('option');
+          option.value = method;
+          option.textContent = method;
+          select.appendChild(option);
+        });
+      }
+
+      function apiGet(action, params = {}) {
+        return new Promise((resolve, reject) => {
+          const callback = `orderingApi_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          const script = document.createElement('script');
+          const url = new URL(GAS_API_URL);
+          const timer = window.setTimeout(() => {
+            cleanup();
+            reject(new Error('讀取資料逾時，請重新整理'));
+          }, 30000);
+
+          function cleanup() {
+            window.clearTimeout(timer);
+            delete window[callback];
+            script.remove();
+          }
+
+          window[callback] = (response) => {
+            cleanup();
+            if (!response || response.ok === false) {
+              reject(new Error((response && response.error) || '讀取資料失敗'));
+              return;
+            }
+            resolve(response.data);
+          };
+
+          url.searchParams.set('action', action);
+          url.searchParams.set('callback', callback);
+          Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+          script.src = url.toString();
+          script.onerror = () => {
+            cleanup();
+            reject(new Error('無法連線到訂單系統'));
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      function apiPost(action, payload) {
+        return new Promise((resolve, reject) => {
+          const requestId = `orderingPost_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          const iframe = document.createElement('iframe');
+          const form = document.createElement('form');
+          const timer = window.setTimeout(() => {
+            cleanup();
+            reject(new Error('送出逾時，請確認網路後再試一次'));
+          }, 45000);
+
+          function cleanup() {
+            window.clearTimeout(timer);
+            window.removeEventListener('message', onMessage);
+            iframe.remove();
+            form.remove();
+          }
+
+          function addField(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+          }
+
+          function onMessage(event) {
+            const message = event.data || {};
+            if (message.source !== 'ordering-gas-api' || message.requestId !== requestId) return;
+            cleanup();
+            const response = message.response || {};
+            if (response.ok === false) {
+              reject(new Error(response.error || '送出失敗'));
+              return;
+            }
+            resolve(response.data);
+          }
+
+          window.addEventListener('message', onMessage);
+          iframe.name = requestId;
+          iframe.style.display = 'none';
+          form.method = 'POST';
+          form.action = GAS_API_URL;
+          form.target = requestId;
+          form.style.display = 'none';
+          addField('action', action);
+          addField('requestId', requestId);
+          addField('payload', JSON.stringify(payload));
+          document.body.appendChild(iframe);
+          document.body.appendChild(form);
+          form.submit();
+        });
+      }
+
+      function groupBy(rows, getKey) {
+        return rows.reduce((groups, row) => {
+          const key = getKey(row);
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(row);
+          return groups;
+        }, {});
+      }
+
+      function money(value) {
+        return `${state.currency}${Number(value || 0).toLocaleString('zh-TW')}`;
+      }
+
+      function setStatus(message, type = '') {
+        const element = $('#status');
+        element.textContent = message;
+        element.className = `status ${type}`;
+      }
+
+      function setStatusHtml(html, type = '') {
+        const element = $('#status');
+        element.innerHTML = html;
+        element.className = `status ${type}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function cssEscape(value) {
+        if (window.CSS && CSS.escape) return CSS.escape(value);
+        return String(value).replace(/"/g, '\\"');
+      }
+    </script>
+  </body>
+</html>

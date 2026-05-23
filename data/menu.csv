@@ -1,0 +1,14 @@
+編號,分類,名稱,大小,價格,啟用,排序,可選選項,圖片網址,備註
+R001,人氣拉麵,究極海老王拉麵,,300,TRUE,10,,,Ultimate Shrimp King Ramen
+R002,人氣拉麵,椒麻味噌拉麵,,300,TRUE,20,,,Sichuan Pepper Miso Ramen
+R003,人氣拉麵,炙白筍拉麵,,300,TRUE,30,,,Grilled Bamboo Ramen
+R004,人氣拉麵,塩豚蔥花拉麵,,240,TRUE,40,,,Shio Pork Ramen
+R005,人氣拉麵,豚骨叉燒大蒜拉麵,,300,TRUE,50,,,Garlic Tonkotsu Ramen
+R006,經典拉麵,香菜拉麵,,260,TRUE,110,,,Cilantro Ramen
+R007,經典拉麵,黑蒜拉麵,,230,TRUE,120,,,Black Garlic Ramen
+R008,經典拉麵,地獄拉麵,,230,TRUE,130,,,Hell Ramen
+R009,經典拉麵,辛豚骨拉麵,,210,TRUE,140,,,Spicy Tonkotsu Ramen
+R010,經典拉麵,味噌拉麵,,200,TRUE,150,,,Miso Ramen
+R011,經典拉麵,豚骨拉麵,,190,TRUE,160,,,Tonkotsu Ramen
+R012,經典拉麵,豚骨醬油拉麵,,190,TRUE,170,,,Tonkotsu Shoyu Ramen
+R013,經典拉麵,醬油拉麵,,170,TRUE,180,,,Shoyu Ramen
