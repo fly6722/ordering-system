@@ -662,6 +662,7 @@
     <script>
       const GAS_API_URL =
         'https://script.google.com/macros/s/AKfycbx9pU_ESK4sqTvOD0Zc0rP6RYbqoJXMKLmJ7KnfMnpECodOI2l0qhiRs0SpYSlJ1xWp/exec';
+      const IMAGE_BASE_URL = new URL('assets/menu-images/menu-cutouts-webp/', window.location.href).toString();
 
       const state = {
         currency: 'NT$',
@@ -682,7 +683,7 @@
 
       function loadData() {
         setStatus('');
-        apiGet('getAppData')
+        apiGet('getAppData', { imageMode: 'external', imagesBase: IMAGE_BASE_URL })
           .then((data) => {
             state.currency = data.settings.currency || 'NT$';
             $('#storeName').textContent = data.settings.store_name || '線上點餐系統';

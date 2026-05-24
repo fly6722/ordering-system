@@ -265,6 +265,24 @@ const DEFAULT_MENU_IMAGES = {
 
 const DEFAULT_ADDON_IMAGES = {};
 
+const DEFAULT_MENU_IMAGE_FILES = {
+  R001: 'R001-ultimate-shrimp-king-ramen.webp',
+  R002: 'R002-sichuan-pepper-miso-ramen.webp',
+  R003: 'R003-grilled-bamboo-ramen.webp',
+  R004: 'R004-shio-pork-ramen.webp',
+  R005: 'R005-garlic-tonkotsu-ramen.webp',
+  R006: 'R006-cilantro-ramen.webp',
+  R007: 'R007-black-garlic-ramen.webp',
+  R008: 'R008-hell-ramen.webp',
+  R009: 'R009-spicy-tonkotsu-ramen.webp',
+  R010: 'R010-miso-ramen.webp',
+  R011: 'R011-tonkotsu-ramen.webp',
+  R012: 'R012-tonkotsu-shoyu-ramen.webp',
+  R013: 'R013-shoyu-ramen.webp',
+};
+
+const DEFAULT_ADDON_IMAGE_FILES = {};
+
 const SEED_MENU = [
   ['R001', '人氣拉麵', '究極海老王拉麵', '', 300, true, 10, '', '', 'Ultimate Shrimp King Ramen'],
   ['R002', '人氣拉麵', '椒麻味噌拉麵', '', 300, true, 20, '', '', 'Sichuan Pepper Miso Ramen'],
@@ -370,7 +388,7 @@ function doPost(e) {
 function handleApiGet_(e) {
   try {
     const action = String((e && e.parameter && e.parameter.action) || '').trim();
-    if (action === 'getAppData') return apiJsonOutput_(getAppData(), e);
+    if (action === 'getAppData') return apiJsonOutput_(getAppData(e && e.parameter), e);
     if (action === 'submitOrder') return apiJsonOutput_(submitOrder(parseApiPayload_(e)), e);
     if (action === 'getOrderStatus') {
       const orderId = (e.parameter && (e.parameter.order || e.parameter.orderId)) || '';
@@ -476,13 +494,14 @@ function setupSpreadsheet() {
   };
 }
 
-function getAppData() {
+function getAppData(options) {
   ensureSpreadsheetReady_();
   const settings = getSettings_();
+  const imageOptions = getImageOptions_(options);
   return {
     settings: getPublicSettings_(settings),
-    menu: getMenuItems_(),
-    addons: getAddonItems_(),
+    menu: getMenuItems_(imageOptions),
+    addons: getAddonItems_(imageOptions),
   };
 }
 
@@ -628,9 +647,14 @@ function getAdminData(pin) {
   requireAdmin_(pin);
 
   const settings = getSettings_();
-  const allItems = readTable_(SHEETS.ORDER_ITEMS);
-  const orders = readTable_(SHEETS.ORDERS)
-    .map((row) => getOrderDetailFromRow_(row, allItems))
+  const recentOrderRows = readTableFirstRows_(SHEETS.ORDERS, 80);
+  const orderIds = recentOrderRows.reduce((set, row) => {
+    if (row.order_id) set[String(row.order_id)] = true;
+    return set;
+  }, {});
+  const recentItems = readTableLastRows_(SHEETS.ORDER_ITEMS, 600).filter((row) => orderIds[String(row.order_id)]);
+  const orders = recentOrderRows
+    .map((row) => getOrderDetailFromRow_(row, recentItems))
     .sort((a, b) => String(b.created_at_sort).localeCompare(String(a.created_at_sort)))
     .slice(0, 80);
 
@@ -642,7 +666,7 @@ function getAdminData(pin) {
       googleChatEnabled: Boolean(String(settings.google_chat_webhook_url || '').trim()),
       lineEnabled: Boolean(String(settings.line_channel_access_token || '').trim() && String(settings.line_to || '').trim()),
     },
-    metrics: getDashboardMetrics_({ includeReports: false }),
+    metrics: getDashboardMetrics_({ includeReports: false, maxOrders: 500 }),
     orders,
   };
 }
@@ -783,7 +807,7 @@ function refreshReports() {
   };
 }
 
-function getMenuItems_() {
+function getMenuItems_(imageOptions) {
   return readTable_(SHEETS.MENU)
     .filter((row) => isEnabled_(row.enabled))
     .map((row) => ({
@@ -794,13 +818,13 @@ function getMenuItems_() {
       price: Number(row.price || 0),
       sort: Number(row.sort || 0),
       options: splitOptions_(row.options),
-      imageUrl: String(row.image_url || getDefaultMenuImage_(row.id) || ''),
+      imageUrl: String(row.image_url || getDefaultMenuImage_(row.id, imageOptions) || ''),
       note: String(row.note || ''),
     }))
     .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name, 'zh-Hant'));
 }
 
-function getAddonItems_() {
+function getAddonItems_(imageOptions) {
   return readTable_(SHEETS.ADDONS)
     .filter((row) => isEnabled_(row.enabled))
     .map((row) => ({
@@ -808,7 +832,7 @@ function getAddonItems_() {
       name: String(row.name),
       price: Number(row.price || 0),
       sort: Number(row.sort || 0),
-      imageUrl: String(row.image_url || getDefaultAddonImage_(row.id) || ''),
+      imageUrl: String(row.image_url || getDefaultAddonImage_(row.id, imageOptions) || ''),
       note: String(row.note || ''),
     }))
     .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name, 'zh-Hant'));
@@ -827,7 +851,7 @@ function getAdminCatalog_() {
         enabled: isEnabled_(row.enabled),
         sort: Number(row.sort || 0),
         options: String(row.options || ''),
-        imageUrl: String(row.image_url || getDefaultMenuImage_(row.id) || ''),
+        imageUrl: String(row.image_url || ''),
         imageUrlInput: String(row.image_url || ''),
         note: String(row.note || ''),
       }))
@@ -840,7 +864,7 @@ function getAdminCatalog_() {
         price: Number(row.price || 0),
         enabled: isEnabled_(row.enabled),
         sort: Number(row.sort || 0),
-        imageUrl: String(row.image_url || getDefaultAddonImage_(row.id) || ''),
+        imageUrl: String(row.image_url || ''),
         imageUrlInput: String(row.image_url || ''),
         note: String(row.note || ''),
       }))
@@ -900,17 +924,33 @@ function makeCatalogId_(type, rows) {
   return prefix + Utilities.formatString('%03d', next);
 }
 
-function getDefaultMenuImage_(itemId) {
-  return getDefaultImage_(DEFAULT_MENU_IMAGES[String(itemId || '')]);
+function getDefaultMenuImage_(itemId, options) {
+  const id = String(itemId || '');
+  return getDefaultImage_(DEFAULT_MENU_IMAGES[id], options, DEFAULT_MENU_IMAGE_FILES[id]);
 }
 
-function getDefaultAddonImage_(itemId) {
-  return getDefaultImage_(DEFAULT_ADDON_IMAGES[String(itemId || '')]);
+function getDefaultAddonImage_(itemId, options) {
+  const id = String(itemId || '');
+  return getDefaultImage_(DEFAULT_ADDON_IMAGES[id], options, DEFAULT_ADDON_IMAGE_FILES[id]);
 }
 
-function getDefaultImage_(imageKey) {
+function getDefaultImage_(imageKey, options, fileName) {
+  if (options && options.mode === 'external' && options.baseUrl && fileName) return options.baseUrl + fileName;
   if (!imageKey || typeof IMAGE_DATA === 'undefined') return '';
   return IMAGE_DATA[imageKey] || '';
+}
+
+function getImageOptions_(options) {
+  const mode = String((options && options.imageMode) || '').trim().toLowerCase();
+  if (mode !== 'external') return { mode: 'inline', baseUrl: '' };
+  const baseUrl = normalizeImageBaseUrl_((options && options.imagesBase) || '');
+  return { mode: 'external', baseUrl };
+}
+
+function normalizeImageBaseUrl_(value) {
+  const text = String(value || '').trim();
+  if (!/^https:\/\/[^\s"'<>]+$/i.test(text)) return '';
+  return text.endsWith('/') ? text : text + '/';
 }
 
 function getOrderDetailFromRow_(order, allItems) {
@@ -955,8 +995,9 @@ function getOrderDetailFromRow_(order, allItems) {
 
 function getDashboardMetrics_(options) {
   const includeReports = !options || options.includeReports !== false;
+  const maxOrders = options && options.maxOrders ? Number(options.maxOrders) : 0;
   const today = Utilities.formatDate(new Date(), getTimeZone_(), 'yyyy/MM/dd');
-  const orders = readTable_(SHEETS.ORDERS);
+  const orders = maxOrders > 0 ? readTableFirstRows_(SHEETS.ORDERS, maxOrders) : readTable_(SHEETS.ORDERS);
   const dailyRows = readTable_(SHEETS.DAILY_SUMMARY).map((row) => ({
     date: formatDateValue_(row.date, 'yyyy/MM/dd') || String(row.date || ''),
     orders: Number(row.orders || 0),
@@ -1792,6 +1833,40 @@ function readTable_(sheetName) {
   const values = sheet.getDataRange().getValues();
   const headers = values.shift().map((header) => normalizeHeader_(header));
   return values
+    .filter((row) => row.some((cell) => cell !== ''))
+    .map((row) =>
+      headers.reduce((record, header, index) => {
+        record[header] = row[index];
+        return record;
+      }, {})
+    );
+}
+
+function readTableFirstRows_(sheetName, maxRows) {
+  return readTableWindow_(sheetName, 2, maxRows);
+}
+
+function readTableLastRows_(sheetName, maxRows) {
+  const sheet = getSpreadsheet_().getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const count = Math.max(0, Math.min(Number(maxRows || 0), sheet.getLastRow() - 1));
+  return readTableWindow_(sheetName, sheet.getLastRow() - count + 1, count);
+}
+
+function readTableWindow_(sheetName, startRow, maxRows) {
+  const sheet = getSpreadsheet_().getSheetByName(sheetName);
+  const count = Math.max(0, Number(maxRows || 0));
+  if (!sheet || sheet.getLastRow() < 2 || count < 1) return [];
+
+  const lastColumn = sheet.getLastColumn();
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0].map((header) => normalizeHeader_(header));
+  const firstRow = Math.max(2, Number(startRow || 2));
+  const rowCount = Math.min(count, sheet.getLastRow() - firstRow + 1);
+  if (rowCount < 1) return [];
+
+  return sheet
+    .getRange(firstRow, 1, rowCount, lastColumn)
+    .getValues()
     .filter((row) => row.some((cell) => cell !== ''))
     .map((row) =>
       headers.reduce((record, header, index) => {
