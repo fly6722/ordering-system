@@ -496,7 +496,7 @@ function submitOrder(payload) {
     throw new Error('請選擇內用或外帶');
   }
 
-  setupSpreadsheet();
+  ensureSpreadsheetReady_();
   const settings = getSettings_();
   const paymentMethods = splitOptions_(settings.payment_methods);
   const paymentMethod = normalizeListValue_(payload.paymentMethod, paymentMethods, paymentMethods[0] || '現金');
@@ -956,6 +956,7 @@ function getOrderDetailFromRow_(order, allItems) {
 function getDashboardMetrics_(options) {
   const includeReports = !options || options.includeReports !== false;
   const today = Utilities.formatDate(new Date(), getTimeZone_(), 'yyyy/MM/dd');
+  const orders = readTable_(SHEETS.ORDERS);
   const dailyRows = readTable_(SHEETS.DAILY_SUMMARY).map((row) => ({
     date: formatDateValue_(row.date, 'yyyy/MM/dd') || String(row.date || ''),
     orders: Number(row.orders || 0),
@@ -970,11 +971,8 @@ function getDashboardMetrics_(options) {
     otherTotal: Number(row.other_total || 0),
     averageOrderValue: Number(row.average_order_value || 0),
   }));
-  const todayRow =
-    dailyRows.find((row) => row.date === today) ||
-    { date: today, orders: 0, paidOrders: 0, unpaidOrders: 0, canceledOrders: 0, total: 0, averageOrderValue: 0 };
+  const todayRow = buildTodayMetricsFromOrders_(orders, today);
 
-  const orders = readTable_(SHEETS.ORDERS);
   const statusCounts = {};
   orders.forEach((order) => {
     const status = String(order.status || '新訂單');
@@ -1011,6 +1009,41 @@ function getDashboardMetrics_(options) {
   }
 
   return metrics;
+}
+
+function buildTodayMetricsFromOrders_(orders, today) {
+  const row = {
+    date: today,
+    orders: 0,
+    paidOrders: 0,
+    unpaidOrders: 0,
+    canceledOrders: 0,
+    subtotal: 0,
+    addonTotal: 0,
+    total: 0,
+    averageOrderValue: 0,
+  };
+
+  orders.forEach((order) => {
+    const date = formatDateValue_(order.created_at, 'yyyy/MM/dd') || '';
+    if (date !== today) return;
+
+    const status = String(order.status || '');
+    if (status === '取消') {
+      row.canceledOrders += 1;
+      return;
+    }
+
+    row.orders += 1;
+    if (String(order.payment_status || '') === '已付款') row.paidOrders += 1;
+    else row.unpaidOrders += 1;
+    row.subtotal += Number(order.subtotal || 0);
+    row.addonTotal += Number(order.addon_total || 0);
+    row.total += Number(order.total || 0);
+  });
+
+  row.averageOrderValue = row.orders ? Math.round(row.total / row.orders) : 0;
+  return row;
 }
 
 function buildBillingStats_(dailyRows) {
