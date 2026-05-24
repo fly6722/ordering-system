@@ -689,6 +689,8 @@
         reportMode: 'daily',
         editingType: 'menu',
         loading: false,
+        catalogLoaded: false,
+        reportDataLoaded: false,
       };
 
       const $ = (selector) => document.querySelector(selector);
@@ -746,6 +748,8 @@
       function showView(viewId) {
         document.querySelectorAll('.view').forEach((view) => view.classList.toggle('active', view.id === viewId));
         document.querySelectorAll('[data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === viewId));
+        if (viewId === 'catalogView' && !state.catalogLoaded) loadCatalog();
+        if ((viewId === 'reportsView' || viewId === 'billingView') && !state.reportDataLoaded) loadReportData();
       }
 
       function loadAdmin(silent = false) {
@@ -767,25 +771,63 @@
 
       function renderAdmin(data, message) {
         state.settings = data.settings;
-        state.catalog = data.catalog || { menu: [], addons: [] };
         $('#storeName').textContent = data.settings.store_name + ' 管理';
         renderMetrics(data.metrics.today);
         renderStatusCounts(data.metrics.statusCounts);
         renderTopItems(data.metrics.topItems);
         renderIngredients(data.metrics.ingredientUsage);
         renderOrders(data.orders);
-        renderCatalog(state.catalog);
-        renderReports(data.metrics.reports || {});
-        renderBilling(data.metrics.billing || {});
+        if (data.catalog) {
+          state.catalog = data.catalog;
+          state.catalogLoaded = true;
+          renderCatalog(state.catalog);
+        }
+        if (data.metrics.reports || data.metrics.billing) {
+          state.reportDataLoaded = true;
+          renderReports(data.metrics.reports || {});
+          renderBilling(data.metrics.billing || {});
+        }
         setStatus(message || '已更新');
       }
 
       function refreshReports() {
         setStatus('更新中');
         google.script.run
-          .withSuccessHandler(() => loadAdmin())
+          .withSuccessHandler(() => {
+            state.reportDataLoaded = false;
+            loadReportData();
+            loadAdmin(true);
+          })
           .withFailureHandler((error) => showError(error.message || String(error)))
           .refreshAdminReports(state.pin);
+      }
+
+      function loadCatalog(silent = false) {
+        if (!silent) setStatus('載入品項中');
+        google.script.run
+          .withSuccessHandler((catalog) => {
+            state.catalog = catalog || { menu: [], addons: [] };
+            state.catalogLoaded = true;
+            renderCatalog(state.catalog);
+            setStatus(silent ? '品項已更新' : '品項已載入');
+          })
+          .withFailureHandler((error) => showError(error.message || String(error)))
+          .getAdminCatalog(state.pin);
+      }
+
+      function loadReportData() {
+        setStatus('載入報表中');
+        google.script.run
+          .withSuccessHandler((metrics) => {
+            state.reportDataLoaded = true;
+            renderTopItems(metrics.topItems);
+            renderIngredients(metrics.ingredientUsage);
+            renderReports(metrics.reports || {});
+            renderBilling(metrics.billing || {});
+            setStatus('報表已載入');
+          })
+          .withFailureHandler((error) => showError(error.message || String(error)))
+          .getAdminReportData(state.pin);
       }
 
       function renderMetrics(today) {
@@ -1088,9 +1130,12 @@
         };
         setStatus('儲存品項中');
         google.script.run
-          .withSuccessHandler((data) => {
+          .withSuccessHandler((catalog) => {
             closeItemEditor();
-            renderAdmin(data, '品項已儲存');
+            state.catalog = catalog || { menu: [], addons: [] };
+            state.catalogLoaded = true;
+            renderCatalog(state.catalog);
+            setStatus('品項已儲存');
           })
           .withFailureHandler((error) => showError(error.message || String(error)))
           .saveCatalogItem(payload, state.pin);
@@ -1099,7 +1144,12 @@
       function toggleCatalogItem(type, id, enabled) {
         setStatus('更新上架狀態中');
         google.script.run
-          .withSuccessHandler((data) => renderAdmin(data, '上架狀態已更新'))
+          .withSuccessHandler((catalog) => {
+            state.catalog = catalog || { menu: [], addons: [] };
+            state.catalogLoaded = true;
+            renderCatalog(state.catalog);
+            setStatus('上架狀態已更新');
+          })
           .withFailureHandler((error) => showError(error.message || String(error)))
           .toggleCatalogItem(type, id, enabled, state.pin);
       }
