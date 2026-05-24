@@ -5,12 +5,11 @@
 ## 檔案
 
 - `gas/Code.gs`：GAS 後端，建立分頁、讀菜單、寫訂單、更新狀態、產生報表。
-- `gas/ImageData.gs`：已下載並壓縮後內嵌的菜單圖片資料。
-- `gas/Index.html`：顧客點菜頁。
+- `gas/ImageData.gs`：舊版內嵌圖片 fallback；目前 GitHub Pages 前台預設使用 `docs/assets/` 靜態 WebP 圖。
 - `gas/Admin.html`：櫃台管理頁，網址加 `?page=admin`。
 - `gas/Status.html`：顧客查詢頁，網址加 `?page=status&order=訂單編號`。
 - `gas/appsscript.json`：Apps Script 專案設定與授權範圍。
-- `docs/index.html`：可放到 GitHub Pages 的顧客點餐前台。
+- `docs/index.html`：放到 GitHub Pages 的顧客點餐前台。
 - `data/*.csv`：菜單、加點、備料和設定資料模板。
 
 ## 部署
@@ -18,20 +17,19 @@
 1. 到 Google Drive 建立新的 Google 試算表，例如「線上點菜系統」。
 2. 在試算表點「擴充功能」->「Apps Script」。
 3. 把 `gas/Code.gs` 貼到 Apps Script 的 `Code.gs`。
-4. 新增 HTML 檔案 `Index`，貼上 `gas/Index.html`。
-5. 新增 HTML 檔案 `Admin`，貼上 `gas/Admin.html`。
-6. 新增 HTML 檔案 `Status`，貼上 `gas/Status.html`。
-7. 在 Apps Script 專案設定打開「在編輯器中顯示 appsscript.json」，貼上 `gas/appsscript.json`。
-8. 儲存後，在函式下拉選單選 `setupSpreadsheet`，按「執行」並完成授權。
-9. 回到試算表確認底部已建立這些分頁：
+4. 新增 HTML 檔案 `Admin`，貼上 `gas/Admin.html`。
+5. 新增 HTML 檔案 `Status`，貼上 `gas/Status.html`。
+6. 在 Apps Script 專案設定打開「在編輯器中顯示 appsscript.json」，貼上 `gas/appsscript.json`。
+7. 儲存後，在函式下拉選單選 `setupSpreadsheet`，按「執行」並完成授權。
+8. 回到試算表確認底部已建立這些分頁：
    `菜單`、`加點`、`訂單`、`訂單明細`、`備料規則`、`每日營收`、`品項排行`、`食材用量`、`系統設定`
-10. 點「部署」->「新增部署作業」-> 類型選「網頁應用程式」。
-11. 執行身分選「我」，存取權選「任何人」或依店內需求調整。
-12. 複製 Web App URL。
+9. 點「部署」->「新增部署作業」-> 類型選「網頁應用程式」。
+10. 執行身分選「我」，存取權選「任何人」或依店內需求調整。
+11. 複製 Web App URL。
 
 ## 使用網址
 
-- 顧客點菜：部署後的 Web App URL
+- 顧客點菜：GitHub Pages URL
 - 櫃台管理：`Web App URL?page=admin`
 - 訂單查詢：`Web App URL?page=status&order=訂單編號`
 

@@ -244,6 +244,7 @@ const RECIPE_MATCH_DISPLAY_LABELS = {
 const MENU_DATA_VERSION = 'menu-webp-20260522';
 const SPREADSHEET_READY_CACHE_KEY = 'ordering_setup_ready_20260524_webp';
 const SPREADSHEET_READY_CACHE_SECONDS = 21600;
+const PUBLIC_FRONTEND_URL = 'https://fly6722.github.io/ordering-system/';
 const WEB_APP_URL_FALLBACK =
   'https://script.google.com/macros/s/AKfycbx9pU_ESK4sqTvOD0Zc0rP6RYbqoJXMKLmJ7KnfMnpECodOI2l0qhiRs0SpYSlJ1xWp/exec';
 
@@ -372,13 +373,31 @@ function doGet(e) {
 
   ensureSpreadsheetReady_();
   const page = String((e && e.parameter && e.parameter.page) || '').toLowerCase();
-  const fileName = page === 'admin' ? 'Admin' : page === 'status' ? 'Status' : 'Index';
+  if (page !== 'admin' && page !== 'status') return redirectToFrontend_();
+
+  const fileName = page === 'admin' ? 'Admin' : 'Status';
   const template = HtmlService.createTemplateFromFile(fileName);
   template.webAppUrl = getWebAppUrl_();
+  template.frontendUrl = getPublicFrontendUrl_();
   return template
     .evaluate()
     .setTitle(getSetting_('store_name') || '線上點餐系統')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+function redirectToFrontend_() {
+  const url = getPublicFrontendUrl_();
+  return HtmlService.createHtmlOutput(
+    '<!doctype html><html><head><base target="_top"><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1"></head><body>' +
+      '<script>top.location.replace(' +
+      JSON.stringify(url) +
+      ');</script>' +
+      '<a href="' +
+      htmlEscape_(url) +
+      '" target="_top">前往點餐頁</a>' +
+      '</body></html>'
+  );
 }
 
 function doPost(e) {
@@ -1978,6 +1997,18 @@ function getWebAppUrl_() {
   } catch (error) {
     return WEB_APP_URL_FALLBACK;
   }
+}
+
+function getPublicFrontendUrl_() {
+  return PUBLIC_FRONTEND_URL;
+}
+
+function htmlEscape_(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function formatMoney_(value) {
