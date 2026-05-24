@@ -926,7 +926,7 @@
         $('#submitBtn').disabled = true;
         setStatus('送出中');
 
-        apiPost('submitOrder', payload)
+        apiGet('submitOrder', { payload: JSON.stringify(payload) })
           .then((result) => {
             state.cart.clear();
             persistCart();

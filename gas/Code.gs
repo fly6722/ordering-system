@@ -371,6 +371,7 @@ function handleApiGet_(e) {
   try {
     const action = String((e && e.parameter && e.parameter.action) || '').trim();
     if (action === 'getAppData') return apiJsonOutput_(getAppData(), e);
+    if (action === 'submitOrder') return apiJsonOutput_(submitOrder(parseApiPayload_(e)), e);
     if (action === 'getOrderStatus') {
       const orderId = (e.parameter && (e.parameter.order || e.parameter.orderId)) || '';
       return apiJsonOutput_(getOrderStatus(orderId), e);
