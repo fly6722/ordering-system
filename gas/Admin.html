@@ -688,6 +688,7 @@
         reports: { daily: { rows: [], summary: {} }, weekly: { rows: [], summary: {} }, monthly: { rows: [], summary: {} } },
         reportMode: 'daily',
         editingType: 'menu',
+        loading: false,
       };
 
       const $ = (selector) => document.querySelector(selector);
@@ -726,6 +727,10 @@
           })
           .withFailureHandler((error) => showError(error.message || String(error)))
           .getAdminBootstrap();
+
+        setInterval(() => {
+          if ($('#adminApp').style.display !== 'none') loadAdmin(true);
+        }, 15000);
       });
 
       function showPin() {
@@ -743,11 +748,17 @@
         document.querySelectorAll('[data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === viewId));
       }
 
-      function loadAdmin() {
-        setStatus('載入中');
+      function loadAdmin(silent = false) {
+        if (state.loading) return;
+        state.loading = true;
+        if (!silent) setStatus('載入中');
         google.script.run
-          .withSuccessHandler((data) => renderAdmin(data, '已更新'))
+          .withSuccessHandler((data) => {
+            state.loading = false;
+            renderAdmin(data, silent ? '已自動更新' : '已更新');
+          })
           .withFailureHandler((error) => {
+            state.loading = false;
             showError(error.message || String(error));
             if ((error.message || '').includes('PIN')) showPin();
           })

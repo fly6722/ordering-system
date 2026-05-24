@@ -448,7 +448,7 @@ function getErrorMessage_(error) {
 function ensureSpreadsheetReady_() {
   const cache = CacheService.getScriptCache();
   if (cache.get(SPREADSHEET_READY_CACHE_KEY)) return;
-  setupSpreadsheet();
+  ensureSpreadsheetReady_();
   cache.put(SPREADSHEET_READY_CACHE_KEY, 'true', SPREADSHEET_READY_CACHE_SECONDS);
 }
 
@@ -572,7 +572,7 @@ function submitOrder(payload) {
     const total = subtotal + addonTotal;
     const pickupCode = makePickupCode_();
 
-    ss.getSheetByName(SHEETS.ORDERS).appendRow([
+    prependRows_(SHEETS.ORDERS, [[
       orderId,
       now,
       serviceType,
@@ -589,13 +589,10 @@ function submitOrder(payload) {
       '',
       pickupCode,
       '',
-    ]);
+    ]]);
 
     const itemRows = orderLines.map((line) => [orderId].concat(line));
-    if (itemRows.length) {
-      const sheet = ss.getSheetByName(SHEETS.ORDER_ITEMS);
-      sheet.getRange(sheet.getLastRow() + 1, 1, itemRows.length, itemRows[0].length).setValues(itemRows);
-    }
+    appendRows_(SHEETS.ORDER_ITEMS, itemRows);
 
     result = {
       ok: true,
@@ -612,7 +609,6 @@ function submitOrder(payload) {
     lock.releaseLock();
   }
 
-  refreshReports();
   sendOrderNotifications_(result.orderId);
   return result;
 }
@@ -628,9 +624,8 @@ function getAdminBootstrap() {
 }
 
 function getAdminData(pin) {
-  setupSpreadsheet();
+  ensureSpreadsheetReady_();
   requireAdmin_(pin);
-  refreshReports();
 
   const settings = getSettings_();
   const allItems = readTable_(SHEETS.ORDER_ITEMS);
@@ -647,10 +642,21 @@ function getAdminData(pin) {
       googleChatEnabled: Boolean(String(settings.google_chat_webhook_url || '').trim()),
       lineEnabled: Boolean(String(settings.line_channel_access_token || '').trim() && String(settings.line_to || '').trim()),
     },
-    metrics: getDashboardMetrics_(),
-    catalog: getAdminCatalog_(),
+    metrics: getDashboardMetrics_({ includeReports: false }),
     orders,
   };
+}
+
+function getAdminCatalog(pin) {
+  ensureSpreadsheetReady_();
+  requireAdmin_(pin);
+  return getAdminCatalog_();
+}
+
+function getAdminReportData(pin) {
+  ensureSpreadsheetReady_();
+  requireAdmin_(pin);
+  return getDashboardMetrics_({ includeReports: true });
 }
 
 function refreshAdminReports(pin) {
@@ -948,7 +954,8 @@ function getOrderDetailFromRow_(order, allItems) {
   };
 }
 
-function getDashboardMetrics_() {
+function getDashboardMetrics_(options) {
+  const includeReports = !options || options.includeReports !== false;
   const today = Utilities.formatDate(new Date(), getTimeZone_(), 'yyyy/MM/dd');
   const dailyRows = readTable_(SHEETS.DAILY_SUMMARY).map((row) => ({
     date: formatDateValue_(row.date, 'yyyy/MM/dd') || String(row.date || ''),
@@ -975,7 +982,7 @@ function getDashboardMetrics_() {
     statusCounts[status] = (statusCounts[status] || 0) + 1;
   });
 
-  return {
+  const metrics = {
     today: todayRow,
     statusCounts,
     daily: dailyRows.slice(-14),
@@ -997,9 +1004,14 @@ function getDashboardMetrics_() {
         quantity: Number(row.quantity || 0),
         source: String(row.source || ''),
       })),
-    billing: buildBillingStats_(dailyRows),
-    reports: buildOrderReports_(),
   };
+
+  if (includeReports) {
+    metrics.billing = buildBillingStats_(dailyRows);
+    metrics.reports = buildOrderReports_();
+  }
+
+  return metrics;
 }
 
 function buildBillingStats_(dailyRows) {
@@ -1645,6 +1657,19 @@ function setSettingValue_(label, value) {
   }
 
   sheet.appendRow([label, value]);
+}
+
+function prependRows_(sheetName, rows) {
+  if (!rows.length) return;
+  const sheet = getSpreadsheet_().getSheetByName(sheetName);
+  sheet.insertRowsBefore(2, rows.length);
+  sheet.getRange(2, 1, rows.length, rows[0].length).setValues(rows);
+}
+
+function appendRows_(sheetName, rows) {
+  if (!rows.length) return;
+  const sheet = getSpreadsheet_().getSheetByName(sheetName);
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
 }
 
 function normalizeRecipeMatchLabels_() {

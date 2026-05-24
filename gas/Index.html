@@ -22,6 +22,13 @@
         box-sizing: border-box;
       }
 
+      html,
+      body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
       body {
         margin: 0;
         background: var(--paper);
@@ -75,7 +82,7 @@
 
       h1 {
         margin: 0;
-        font-size: 24px;
+        font-size: clamp(32px, 3.4vw, 50px);
         line-height: 1.1;
         letter-spacing: 0;
       }
@@ -130,6 +137,7 @@
       }
 
       .panel {
+        min-width: 0;
         background: var(--surface);
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -268,6 +276,7 @@
 
       .item-card,
       .addon-card {
+        min-width: 0;
         border: 1px solid var(--line);
         border-radius: 8px;
         background: #fffdf8;
@@ -294,17 +303,25 @@
         gap: 8px;
       }
 
+      .item-title strong,
+      .line-name,
+      .addon-body > div:first-child {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
       .variant {
         min-height: 54px;
         padding: 9px 12px;
         border-top: 1px solid var(--line);
         display: grid;
-        grid-template-columns: auto minmax(92px, 1fr) auto;
+        grid-template-columns: auto minmax(0, 1fr) auto;
         align-items: center;
         gap: 8px;
       }
 
       .variant select {
+        min-width: 0;
         padding-block: 8px;
       }
 
@@ -399,7 +416,7 @@
         border-radius: 8px;
         padding: 10px;
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 8px;
         background: #fffdf8;
       }
@@ -496,6 +513,12 @@
         }
       }
 
+      @media (max-width: 1120px) and (min-width: 881px) {
+        .item-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
       @media (max-width: 640px) {
         .topbar-inner,
         .layout {
@@ -503,7 +526,7 @@
         }
 
         h1 {
-          font-size: 21px;
+          font-size: 30px;
         }
 
         .topbar-inner {
