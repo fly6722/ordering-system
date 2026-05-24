@@ -666,7 +666,7 @@ function refreshAdminReports(pin) {
 }
 
 function saveCatalogItem(payload, pin) {
-  setupSpreadsheet();
+  ensureSpreadsheetReady_();
   requireAdmin_(pin);
 
   const type = normalizeCatalogType_(payload && payload.type);
@@ -688,12 +688,11 @@ function saveCatalogItem(payload, pin) {
   }
 
   formatSheets_(getSpreadsheet_());
-  refreshReports();
-  return getAdminData(pin);
+  return getAdminCatalog_();
 }
 
 function toggleCatalogItem(type, id, enabled, pin) {
-  setupSpreadsheet();
+  ensureSpreadsheetReady_();
   requireAdmin_(pin);
 
   const catalogType = normalizeCatalogType_(type);
@@ -708,7 +707,7 @@ function toggleCatalogItem(type, id, enabled, pin) {
 
   sheet.getRange(rowIndex + 1, enabledCol + 1).setValue(Boolean(enabled));
   formatSheets_(getSpreadsheet_());
-  return getAdminData(pin);
+  return getAdminCatalog_();
 }
 
 function updateOrder(orderId, patch, pin) {
@@ -755,7 +754,7 @@ function updateOrder(orderId, patch, pin) {
 }
 
 function getOrderStatus(orderId) {
-  setupSpreadsheet();
+  ensureSpreadsheetReady_();
   const cleanId = String(orderId || '').trim();
   if (!cleanId) throw new Error('請輸入訂單編號');
 
